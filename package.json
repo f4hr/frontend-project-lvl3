@@ -4,6 +4,8 @@
   "description": "RSS aggregator",
   "scripts": {
     "test": "jest --colors",
+    "jest-watch": "jest --watch",
+    "coverage": "jest --coverage",
     "serve": "webpack serve"
   },
   "repository": {
