@@ -1,10 +1,12 @@
 // @ts-check
 
 import _ from 'lodash';
+import i18n from 'i18next';
 import * as yup from 'yup';
 import { setLocale } from 'yup';
 import axios from 'axios';
 import onChange from 'on-change';
+import resources from '../../locales';
 import RssParser from './RssParser';
 import { getFeedsUrl } from './utils';
 
@@ -17,21 +19,14 @@ export default class Form {
       url: this.DOM.el.querySelector('#url-input'),
     };
     this.proxy = 'https://hexlet-allorigins.herokuapp.com/get?url=';
-
-    // Validation setup
-    setLocale({
-      string: {
-        url: 'Ссылка должна быть валидным URL',
-      },
+    // Locale setup
+    i18n.init({
+      lng: 'ru',
+      debug: true,
+      resources,
+    }).then(() => {
+      this.initTranslation();
     });
-    this.schema = yup.object().shape({
-      url: yup.string().required().url(),
-    });
-    this.errorMessages = {
-      network: {
-        error: 'Network Problems. Try again.',
-      },
-    };
   }
 
   init(state) {
@@ -53,6 +48,23 @@ export default class Form {
     });
   }
 
+  initTranslation() {
+    // Validation setup
+    setLocale({
+      string: {
+        url: i18n.t('rssForm.errors.urlNotValid'),
+      },
+    });
+    this.schema = yup.object().shape({
+      url: yup.string().required().url(),
+    });
+    this.errorMessages = {
+      network: {
+        error: i18n.t('errors.networkError'),
+      },
+    };
+  }
+
   getFeed(url) {
     this.watchedState.form.processState = 'sending';
 
@@ -63,7 +75,7 @@ export default class Form {
         parser.parse(response.data.contents, feedUrl);
 
         this.watchedState.form.processState = 'finished';
-        this.DOM.feedback.innerHTML = 'RSS успешно загружен';
+        this.DOM.feedback.innerHTML = i18n.t('rssForm.success.rssDownloaded');
 
         const feed = parser.getData();
         this.addFeed(feed);
@@ -132,7 +144,7 @@ export default class Form {
     const errors = this.validate(this.watchedState.form.fields);
 
     if (_.includes(getFeedsUrl(this.watchedState.feeds), this.watchedState.form.fields.url)) {
-      errors.url = { message: 'RSS уже существует' };
+      errors.url = { message: i18n.t('rssForm.errors.rssAlreadyExists') };
     }
 
     this.watchedState.form.valid = _.isEqual(errors, {});
