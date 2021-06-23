@@ -3,6 +3,10 @@
 import View from './View';
 
 const state = {
+  watcher: {
+    delay: 5000,
+    isActive: false,
+  },
   form: {
     processState: 'filling',
     processError: null,
@@ -18,9 +22,9 @@ const state = {
 
 const init = () => {
   const container = document.getElementById('app');
-  const view = new View(container);
+  const view = new View(container, state);
 
-  view.init(state);
+  view.init();
 };
 
 export default init;

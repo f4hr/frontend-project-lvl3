@@ -14,7 +14,7 @@ export default class RssParser {
     return {
       title: this.getTitle(),
       description: this.getDescription(),
-      feedUrl: this.getFeedUrl(),
+      url: this.getFeedUrl(),
       items: this.getItems(),
     };
   }

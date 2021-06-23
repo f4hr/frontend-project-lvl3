@@ -4,21 +4,21 @@ import _ from 'lodash';
 import i18n from 'i18next';
 import * as yup from 'yup';
 import { setLocale } from 'yup';
-import axios from 'axios';
-import onChange from 'on-change';
 import resources from '../../locales';
-import RssParser from './RssParser';
 import { getFeedsUrl } from './utils';
+import Watcher from './Watcher';
 
 export default class Form {
-  constructor(el) {
+  constructor(el, state) {
     this.DOM = { el };
     this.DOM.feedback = document.querySelector('.feedback');
     this.DOM.submitButton = this.DOM.el.querySelector('button[type="submit"]');
     this.fieldElements = {
       url: this.DOM.el.querySelector('#url-input'),
     };
+    this.watchedState = state;
     this.proxy = 'https://hexlet-allorigins.herokuapp.com/get?url=';
+    this.watcher = new Watcher(this.watchedState);
     // Locale setup
     i18n.init({
       lng: 'ru',
@@ -29,8 +29,7 @@ export default class Form {
     });
   }
 
-  init(state) {
-    this.watchedState = state;
+  init() {
     this.DOM.el.addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -43,7 +42,11 @@ export default class Form {
       // Send request
       if (this.watchedState.form.valid) {
         const url = `${this.proxy}${encodeURIComponent(this.watchedState.form.fields.url)}`;
-        this.getFeed(url);
+        this.watcher.getFeed(url);
+        this.DOM.feedback.classList.remove('text-danger');
+        this.DOM.feedback.classList.add('text-success');
+        this.DOM.feedback.innerHTML = i18n.t('rssForm.success.rssDownloaded');
+        this.resetInputs();
       }
     });
   }
@@ -65,59 +68,6 @@ export default class Form {
     };
   }
 
-  getFeed(url) {
-    this.watchedState.form.processState = 'sending';
-
-    axios.get(url)
-      .then((response) => {
-        const feedUrl = response.data.status.url;
-        const parser = new RssParser(new DOMParser());
-        parser.parse(response.data.contents, feedUrl);
-
-        this.watchedState.form.processState = 'finished';
-        this.DOM.feedback.innerHTML = i18n.t('rssForm.success.rssDownloaded');
-
-        const feed = parser.getData();
-        this.addFeed(feed);
-      })
-      .catch((error) => {
-        this.watchedState.form.processState = 'failed';
-        console.error(error);
-      });
-  }
-
-  addFeed(data) {
-    const feedsLength = onChange.target(this.watchedState).feeds.length;
-    const itemsLength = onChange.target(this.watchedState).items.length;
-    const {
-      title,
-      description,
-      feedUrl,
-      items,
-    } = data;
-    const feed = {
-      id: feedsLength,
-      title,
-      description,
-      url: feedUrl,
-    };
-
-    let count = itemsLength;
-    const feedItems = items.map((item) => {
-      const feedItem = { ...item };
-      feedItem.id = count;
-      feedItem.feedId = feed.id;
-
-      count += 1;
-      return feedItem;
-    });
-
-    this.watchedState.feeds = [feed, ...onChange.target(this.watchedState).feeds];
-    this.watchedState.items = [...feedItems, ...onChange.target(this.watchedState).items];
-
-    console.log(this.watchedState);
-  }
-
   processStateHandler(processState) {
     switch (processState) {
       case 'failed':
@@ -131,9 +81,6 @@ export default class Form {
         break;
       case 'finished':
         this.DOM.submitButton.disabled = false;
-        this.DOM.feedback.classList.remove('text-danger');
-        this.DOM.feedback.classList.add('text-success');
-        this.resetInputs();
         break;
       default:
         throw new Error(`Unknown state: ${processState}`);

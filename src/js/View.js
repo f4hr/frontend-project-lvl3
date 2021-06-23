@@ -4,15 +4,11 @@ import onChange from 'on-change';
 import Form from './Form';
 
 export default class View {
-  constructor(el) {
+  constructor(el, state) {
     this.DOM = { el };
     this.DOM.form = this.DOM.el.querySelector('.rss-form');
     this.DOM.feeds = this.DOM.el.querySelector('.feeds');
     this.DOM.posts = this.DOM.el.querySelector('.posts');
-    this.form = new Form(this.DOM.form);
-  }
-
-  init(state) {
     this.watchedState = onChange(state, (path, value) => {
       switch (path) {
         case 'feeds':
@@ -31,7 +27,11 @@ export default class View {
           break;
       }
     });
-    this.form.init(this.watchedState);
+    this.form = new Form(this.DOM.form, this.watchedState);
+  }
+
+  init() {
+    this.form.init();
   }
 
   renderFeeds(feeds) {
