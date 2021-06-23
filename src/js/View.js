@@ -2,13 +2,22 @@
 
 import onChange from 'on-change';
 import Form from './Form';
+import Watcher from './Watcher';
+import { addPostToWatched } from './utils';
 
 export default class View {
-  constructor(el, state) {
-    this.DOM = { el };
+  constructor(params) {
+    const {
+      container,
+      state,
+      i18n,
+    } = params;
+
+    this.DOM = { el: container };
     this.DOM.form = this.DOM.el.querySelector('.rss-form');
     this.DOM.feeds = this.DOM.el.querySelector('.feeds');
     this.DOM.posts = this.DOM.el.querySelector('.posts');
+    this.DOM.modal = document.querySelector('#modal');
     this.watchedState = onChange(state, (path, value) => {
       switch (path) {
         case 'feeds':
@@ -23,15 +32,29 @@ export default class View {
         case 'form.errors':
           this.form.renderErrors(value);
           break;
+        case 'uiState.watchedPosts':
+          this.renderItems(onChange.target(this.watchedState).items);
+          break;
         default:
           break;
       }
     });
-    this.form = new Form(this.DOM.form, this.watchedState);
+    this.form = new Form({
+      container: this.DOM.form,
+      state: this.watchedState,
+      i18n,
+      watcher: new Watcher(this.watchedState),
+    });
+    this.i18n = i18n;
   }
 
   init() {
     this.form.init();
+    this.DOM.modal.addEventListener('hidden.bs.modal', () => {
+      this.DOM.modal.querySelector('.modal-title').textContent = '';
+      this.DOM.modal.querySelector('.modal-body').textContent = '';
+      this.DOM.modal.querySelector('.full-article').href = '#';
+    });
   }
 
   renderFeeds(feeds) {
@@ -68,6 +91,7 @@ export default class View {
   }
 
   renderItems(posts) {
+    const { watchedPosts } = onChange.target(this.watchedState).uiState;
     this.DOM.posts.innerHTML = '';
     const container = document.createElement('div');
     container.classList.add('card', 'border-0');
@@ -78,9 +102,11 @@ export default class View {
     heading.classList.add('card-title', 'h4');
     heading.textContent = 'Посты';
     header.append(heading);
+    // Feed list
     const list = document.createElement('ul');
     list.classList.add('list-group', 'border-0', 'rounded-0');
     container.append(list);
+    // Feed item
     const listItem = document.createElement('li');
     listItem.classList.add(
       'list-group-item',
@@ -90,17 +116,42 @@ export default class View {
       'border-0',
       'border-end-0',
     );
+    // Link
     const listItemLink = document.createElement('a');
-    listItemLink.classList.add('fw-bold');
+    // listItemLink.classList.add('fw-bold');
     listItemLink.setAttribute('target', '_blank');
     listItemLink.setAttribute('rel', 'noopener noreferrer');
     listItem.append(listItemLink);
+    // Button
+    const listItemBtn = document.createElement('button');
+    listItemBtn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    listItemBtn.setAttribute('type', 'button');
+    listItemBtn.dataset.bsToggle = 'modal';
+    listItemBtn.dataset.bsTarget = '#modal';
+    listItemBtn.textContent = this.i18n.t('feed.viewBtn');
+    listItem.append(listItemBtn);
 
     posts.forEach((post) => {
       const item = listItem.cloneNode(true);
       const link = item.querySelector('a');
+      const button = item.querySelector('button');
+      const linkClass = (watchedPosts.includes(post.id))
+        ? ['fw-normal', 'link-secondary']
+        : ['fw-bold'];
+
+      link.classList.add(...linkClass);
       link.textContent = post.title;
       link.href = post.url;
+      link.addEventListener('click', () => {
+        addPostToWatched(post.id, this.watchedState);
+      });
+      button.dataset.id = post.id;
+      button.addEventListener('click', () => {
+        this.DOM.modal.querySelector('.modal-title').textContent = post.title;
+        this.DOM.modal.querySelector('.modal-body').textContent = post.description;
+        this.DOM.modal.querySelector('.full-article').href = post.url;
+        addPostToWatched(post.id, this.watchedState);
+      });
 
       list.append(item);
     });

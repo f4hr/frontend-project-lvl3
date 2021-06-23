@@ -11,6 +11,9 @@ export default {
         urlNotValid: 'Ссылка должна быть валидным URL',
       },
     },
+    feed: {
+      viewBtn: 'Просмотр',
+    },
     errors: {
       networkError: 'Проблемы с сетью. Попробуйте еще раз.',
     },

@@ -1,16 +1,18 @@
 // @ts-check
 
 import _ from 'lodash';
-import i18n from 'i18next';
-import * as yup from 'yup';
-import { setLocale } from 'yup';
-import resources from '../../locales';
-import { getFeedsUrl } from './utils';
-import Watcher from './Watcher';
+import { getFeedsUrl, validate } from './utils';
 
 export default class Form {
-  constructor(el, state) {
-    this.DOM = { el };
+  constructor(params) {
+    const {
+      container,
+      watcher,
+      i18n,
+      state,
+    } = params;
+
+    this.DOM = { el: container };
     this.DOM.feedback = document.querySelector('.feedback');
     this.DOM.submitButton = this.DOM.el.querySelector('button[type="submit"]');
     this.fieldElements = {
@@ -18,15 +20,13 @@ export default class Form {
     };
     this.watchedState = state;
     this.proxy = 'https://hexlet-allorigins.herokuapp.com/get?url=';
-    this.watcher = new Watcher(this.watchedState);
-    // Locale setup
-    i18n.init({
-      lng: 'ru',
-      debug: true,
-      resources,
-    }).then(() => {
-      this.initTranslation();
-    });
+    this.watcher = watcher;
+    this.i18n = i18n;
+    this.errorMessages = {
+      network: {
+        error: i18n.t('errors.networkError'),
+      },
+    };
   }
 
   init() {
@@ -45,27 +45,10 @@ export default class Form {
         this.watcher.getFeed(url);
         this.DOM.feedback.classList.remove('text-danger');
         this.DOM.feedback.classList.add('text-success');
-        this.DOM.feedback.innerHTML = i18n.t('rssForm.success.rssDownloaded');
+        this.DOM.feedback.innerHTML = this.i18n.t('rssForm.success.rssDownloaded');
         this.resetInputs();
       }
     });
-  }
-
-  initTranslation() {
-    // Validation setup
-    setLocale({
-      string: {
-        url: i18n.t('rssForm.errors.urlNotValid'),
-      },
-    });
-    this.schema = yup.object().shape({
-      url: yup.string().required().url(),
-    });
-    this.errorMessages = {
-      network: {
-        error: i18n.t('errors.networkError'),
-      },
-    };
   }
 
   processStateHandler(processState) {
@@ -88,23 +71,14 @@ export default class Form {
   }
 
   updateValidationState() {
-    const errors = this.validate(this.watchedState.form.fields);
+    const errors = validate(this.watchedState.form.fields);
 
     if (_.includes(getFeedsUrl(this.watchedState.feeds), this.watchedState.form.fields.url)) {
-      errors.url = { message: i18n.t('rssForm.errors.rssAlreadyExists') };
+      errors.url = { message: this.i18n.t('rssForm.errors.rssAlreadyExists') };
     }
 
     this.watchedState.form.valid = _.isEqual(errors, {});
     this.watchedState.form.errors = errors;
-  }
-
-  validate(fields) {
-    try {
-      this.schema.validateSync(fields, { abortEarly: false });
-      return {};
-    } catch (e) {
-      return _.keyBy(e.inner, 'path');
-    }
   }
 
   renderErrors(errors) {

@@ -19,8 +19,6 @@ export default class Watcher {
     const getFeeds = () => {
       const result = Promise.all(feeds.map(({ url }) => axios.get(url)));
 
-      this.watchedState.form.processState = 'sending';
-
       result
         .then((responses) => {
           responses.forEach((response) => {
@@ -32,11 +30,9 @@ export default class Watcher {
             this.addFeed(feed);
           });
 
-          this.watchedState.form.processState = 'finished';
           this.updateFeeds();
         })
         .catch((error) => {
-          this.watchedState.form.processState = 'failed';
           console.error(error);
         });
     };
