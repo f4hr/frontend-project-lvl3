@@ -12,7 +12,6 @@ export default class View {
       state,
     } = params;
 
-    console.log(Array.from(document.querySelector('form').classList));
     this.DOM = { el: container };
     this.DOM.form = this.DOM.el.querySelector('form');
     this.DOM.feeds = this.DOM.el.querySelector('.feeds');
