@@ -127,7 +127,7 @@ export default class View {
 
   populateItems(posts, listItem) {
     const { watchedPosts } = onChange.target(this.watchedState).uiState;
-    const list = this.DOM.items.querySelector('.list-group');
+    const list = this.DOM.posts.querySelector('.list-group');
     posts.forEach((post) => {
       const item = listItem.cloneNode(true);
       const link = item.querySelector('a');

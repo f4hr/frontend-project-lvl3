@@ -3,7 +3,7 @@ const autoprefixer = require('autoprefixer');
 
 module.exports = {
   mode: process.env.NODE_ENV || 'development',
-  entry: './src/js/index.js',
+  entry: './src/index.js',
   module: {
     rules: [
       {
@@ -39,7 +39,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'RSS Aggregator',
-      template: 'template.html',
+      template: 'index.html',
     }),
   ],
 };
