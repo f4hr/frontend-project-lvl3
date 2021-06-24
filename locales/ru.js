@@ -8,14 +8,16 @@ export default {
       },
       errors: {
         rssAlreadyExists: 'RSS уже существует',
-        urlNotValid: 'Ссылка должна быть валидным URL',
+        invalidRss: 'Ресурс не содержит валидный RSS',
       },
     },
     feed: {
       viewBtn: 'Просмотр',
     },
     errors: {
-      networkError: 'Проблемы с сетью. Попробуйте еще раз.',
+      networkError: 'Ошибка сети',
+      urlNotValid: 'Ссылка должна быть валидным URL',
+      fieldRequired: 'Не должно быть пустым',
     },
   },
 };

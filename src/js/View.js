@@ -10,7 +10,6 @@ export default class View {
     const {
       container,
       state,
-      i18n,
     } = params;
 
     this.DOM = { el: container };
@@ -39,16 +38,21 @@ export default class View {
           break;
       }
     });
+  }
+
+  init(params) {
+    const {
+      i18n,
+      validator,
+    } = params;
     this.form = new Form({
       container: this.DOM.form,
       state: this.watchedState,
       i18n,
       watcher: new Watcher(this.watchedState),
+      validator,
     });
     this.i18n = i18n;
-  }
-
-  init() {
     this.form.init();
     this.DOM.modal.addEventListener('hidden.bs.modal', () => {
       this.DOM.modal.querySelector('.modal-title').textContent = '';
@@ -88,6 +92,10 @@ export default class View {
     });
 
     this.DOM.feeds.append(container);
+    this.form.DOM.feedback.classList.remove('text-danger');
+    this.form.DOM.feedback.classList.add('text-success');
+    this.form.DOM.feedback.innerHTML = this.i18n.t('rssForm.success.rssDownloaded');
+    this.form.resetInputs();
   }
 
   renderItems(posts) {

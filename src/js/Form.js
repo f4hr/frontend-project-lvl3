@@ -1,7 +1,7 @@
 // @ts-check
 
 import _ from 'lodash';
-import { getFeedsUrl, validate } from './utils';
+import { getFeedsUrl } from './utils';
 
 export default class Form {
   constructor(params) {
@@ -10,6 +10,7 @@ export default class Form {
       watcher,
       i18n,
       state,
+      validator,
     } = params;
 
     this.DOM = { el: container };
@@ -27,6 +28,7 @@ export default class Form {
         error: i18n.t('errors.networkError'),
       },
     };
+    this.validator = validator;
   }
 
   init() {
@@ -43,10 +45,6 @@ export default class Form {
       if (this.watchedState.form.valid) {
         const url = `${this.proxy}${encodeURIComponent(this.watchedState.form.fields.url)}`;
         this.watcher.getFeed(url);
-        this.DOM.feedback.classList.remove('text-danger');
-        this.DOM.feedback.classList.add('text-success');
-        this.DOM.feedback.innerHTML = this.i18n.t('rssForm.success.rssDownloaded');
-        this.resetInputs();
       }
     });
   }
@@ -71,10 +69,10 @@ export default class Form {
   }
 
   updateValidationState() {
-    const errors = validate(this.watchedState.form.fields);
+    const errors = this.validator.validate(this.watchedState.form.fields);
 
     if (_.includes(getFeedsUrl(this.watchedState.feeds), this.watchedState.form.fields.url)) {
-      errors.url = { message: this.i18n.t('rssForm.errors.rssAlreadyExists') };
+      errors.url = { message: 'rssForm.errors.rssAlreadyExists' };
     }
 
     this.watchedState.form.valid = _.isEqual(errors, {});
@@ -88,19 +86,15 @@ export default class Form {
 
       if (errorElement) {
         element.classList.remove('is-invalid');
-        errorElement.innerHTML = '';
+        errorElement.textContent = '';
         errorElement.classList.remove('text-success');
         errorElement.classList.add('text-danger');
       }
       if (!error) {
         return;
       }
-
-      const feedbackElement = document.createElement('span');
-
-      feedbackElement.innerHTML = error.message;
+      errorElement.textContent = this.i18n.t(this.watchedState.form.errors[name].message);
       element.classList.add('is-invalid');
-      errorElement.append(feedbackElement);
     });
   }
 

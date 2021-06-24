@@ -8,6 +8,13 @@ export default class RssParser {
   parse(data, url) {
     this.document = this.parser.parseFromString(data, 'application/xml');
     this.feedUrl = url;
+
+    return {
+      title: this.getTitle(),
+      description: this.getDescription(),
+      url: this.getFeedUrl(),
+      items: this.getItems(),
+    };
   }
 
   getData() {

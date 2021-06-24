@@ -1,3 +1,5 @@
+// @ts-check
+
 import axios from 'axios';
 import _ from 'lodash';
 import onChange from 'on-change';
@@ -7,11 +9,28 @@ import { getFeedsUrl } from './utils';
 export default class Watcher {
   constructor(state) {
     this.watchedState = state;
+    this.parser = new RssParser(new DOMParser());
   }
 
   start() {
     this.watchedState.watcher.isActive = true;
     this.updateFeeds();
+  }
+
+  parseFeed(data, url) {
+    let feed = {};
+    // Try parsing response data
+    try {
+      feed = this.parser.parse(data, url);
+    } catch (error) {
+      this.watchedState.form.errors = {
+        ...onChange.target(this.watchedState).form.errors,
+        url: { message: 'rssForm.errors.invalidRss' },
+      };
+      this.watchedState.form.processState = 'failed';
+    }
+
+    return feed;
   }
 
   updateFeeds() {
@@ -22,17 +41,20 @@ export default class Watcher {
       result
         .then((responses) => {
           responses.forEach((response) => {
-            const feedUrl = response.config.url;
-            const parser = new RssParser(new DOMParser());
-            parser.parse(response.data.contents, feedUrl);
+            const feed = this.parseFeed(response.data.contents, response.config.url);
 
-            const feed = parser.getData();
+            this.watchedState.form.processState = 'finished';
             this.addFeed(feed);
           });
 
           this.updateFeeds();
         })
         .catch((error) => {
+          this.watchedState.form.errors = {
+            ...onChange.target(this.watchedState).form.errors,
+            url: { message: 'errors.networkError' },
+          };
+          this.watchedState.form.processState = 'failed';
           console.error(error);
         });
     };
@@ -45,22 +67,32 @@ export default class Watcher {
 
     axios.get(url)
       .then((response) => {
-        const feedUrl = response.config.url;
-        const parser = new RssParser(new DOMParser());
-        parser.parse(response.data.contents, feedUrl);
+        const feed = this.parseFeed(response.data.contents, response.config.url);
 
         this.watchedState.form.processState = 'finished';
-
-        const feed = parser.getData();
         this.addFeed(feed);
       })
       .catch((error) => {
+        this.watchedState.form.errors = {
+          ...onChange.target(this.watchedState).form.errors,
+          url: { message: 'errors.networkError' },
+        };
         this.watchedState.form.processState = 'failed';
         console.error(error);
       });
   }
 
   addFeed(data) {
+    if (_.isEqual(data, {})) {
+      this.watchedState.form.errors = {
+        ...onChange.target(this.watchedState).form.errors,
+        url: { message: 'rssForm.errors.invalidRss' },
+      };
+      this.watchedState.form.processState = 'failed';
+
+      return;
+    }
+
     const feedsLength = onChange.target(this.watchedState).feeds.length;
     const itemsLength = onChange.target(this.watchedState).items.length;
     const {
