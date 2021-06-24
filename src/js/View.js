@@ -61,7 +61,7 @@ export default class View {
     });
   }
 
-  renderFeeds(feeds) {
+  buildFeedsContainer() {
     this.DOM.feeds.innerHTML = '';
     const container = document.createElement('div');
     container.classList.add('card', 'border-0');
@@ -75,6 +75,22 @@ export default class View {
     const list = document.createElement('ul');
     list.classList.add('list-group', 'border-0', 'rounded-0');
     container.append(list);
+    this.DOM.feeds.append(container);
+  }
+
+  populateFeeds(feeds, listItem) {
+    const list = this.DOM.feeds.querySelector('.list-group');
+
+    feeds.forEach((feed) => {
+      const item = listItem.cloneNode(true);
+      item.querySelector('h3').textContent = feed.title;
+      item.querySelector('p').textContent = feed.description;
+      list.append(item);
+    });
+  }
+
+  renderFeeds(feeds) {
+    this.buildFeedsContainer();
     const listItem = document.createElement('li');
     listItem.classList.add('list-group-item', 'border-0', 'border-end-0');
     const listItemHeading = document.createElement('h3');
@@ -83,23 +99,15 @@ export default class View {
     const listItemDescription = document.createElement('p');
     listItemDescription.classList.add('m-0', 'small', 'text-black-50');
     listItem.append(listItemDescription);
+    this.populateFeeds(feeds, listItem);
 
-    feeds.forEach((feed) => {
-      const item = listItem.cloneNode(true);
-      item.querySelector('h3').textContent = feed.title;
-      item.querySelector('p').textContent = feed.description;
-      list.append(item);
-    });
-
-    this.DOM.feeds.append(container);
     this.form.DOM.feedback.classList.remove('text-danger');
     this.form.DOM.feedback.classList.add('text-success');
     this.form.DOM.feedback.innerHTML = this.i18n.t('rssForm.success.rssDownloaded');
     this.form.resetInputs();
   }
 
-  renderItems(posts) {
-    const { watchedPosts } = onChange.target(this.watchedState).uiState;
+  buildItemsContainer() {
     this.DOM.posts.innerHTML = '';
     const container = document.createElement('div');
     container.classList.add('card', 'border-0');
@@ -114,31 +122,12 @@ export default class View {
     const list = document.createElement('ul');
     list.classList.add('list-group', 'border-0', 'rounded-0');
     container.append(list);
-    // Feed item
-    const listItem = document.createElement('li');
-    listItem.classList.add(
-      'list-group-item',
-      'd-flex',
-      'justify-content-between',
-      'align-items-start',
-      'border-0',
-      'border-end-0',
-    );
-    // Link
-    const listItemLink = document.createElement('a');
-    // listItemLink.classList.add('fw-bold');
-    listItemLink.setAttribute('target', '_blank');
-    listItemLink.setAttribute('rel', 'noopener noreferrer');
-    listItem.append(listItemLink);
-    // Button
-    const listItemBtn = document.createElement('button');
-    listItemBtn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    listItemBtn.setAttribute('type', 'button');
-    listItemBtn.dataset.bsToggle = 'modal';
-    listItemBtn.dataset.bsTarget = '#modal';
-    listItemBtn.textContent = this.i18n.t('feed.viewBtn');
-    listItem.append(listItemBtn);
+    this.DOM.posts.append(container);
+  }
 
+  populateItems(posts, listItem) {
+    const { watchedPosts } = onChange.target(this.watchedState).uiState;
+    const list = this.DOM.items.querySelector('.list-group');
     posts.forEach((post) => {
       const item = listItem.cloneNode(true);
       const link = item.querySelector('a');
@@ -163,7 +152,34 @@ export default class View {
 
       list.append(item);
     });
+  }
 
-    this.DOM.posts.append(container);
+  renderItems(posts) {
+    this.buildItemsContainer();
+    // Feed item
+    const listItem = document.createElement('li');
+    listItem.classList.add(
+      'list-group-item',
+      'd-flex',
+      'justify-content-between',
+      'align-items-start',
+      'border-0',
+      'border-end-0',
+    );
+    // Link
+    const listItemLink = document.createElement('a');
+    // listItemLink.classList.add('fw-bold');
+    listItemLink.setAttribute('target', '_blank');
+    listItemLink.setAttribute('rel', 'noopener noreferrer');
+    listItem.append(listItemLink);
+    // Button
+    const listItemBtn = document.createElement('button');
+    listItemBtn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    listItemBtn.setAttribute('type', 'button');
+    listItemBtn.dataset.bsToggle = 'modal';
+    listItemBtn.dataset.bsTarget = '#modal';
+    listItemBtn.textContent = this.i18n.t('feed.viewBtn');
+    listItem.append(listItemBtn);
+    this.populateItems(posts, listItem);
   }
 }

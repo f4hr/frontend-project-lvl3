@@ -22,27 +22,29 @@ const initTranslation = (i18n) => {
   });
 };
 
+const defaultState = {
+  watcher: {
+    delay: 5000,
+    isActive: false,
+  },
+  form: {
+    processState: 'filling',
+    processError: null,
+    fields: {
+      url: '',
+    },
+    valid: true,
+    errors: {},
+  },
+  feeds: [],
+  items: [],
+  uiState: {
+    watchedPosts: [],
+  },
+};
+
 const init = () => {
-  const state = {
-    watcher: {
-      delay: 5000,
-      isActive: false,
-    },
-    form: {
-      processState: 'filling',
-      processError: null,
-      fields: {
-        url: '',
-      },
-      valid: true,
-      errors: {},
-    },
-    feeds: [],
-    items: [],
-    uiState: {
-      watchedPosts: [],
-    },
-  };
+  const state = { ...defaultState };
   const container = document.getElementById('app');
   const view = new View({ container, state });
   // Locale setup

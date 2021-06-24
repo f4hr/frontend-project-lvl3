@@ -34,8 +34,8 @@ export default class Watcher {
   }
 
   updateFeeds() {
-    const { feeds } = onChange.target(this.watchedState);
-    const getFeeds = () => {
+    setTimeout(() => {
+      const { feeds } = onChange.target(this.watchedState);
       const result = Promise.all(feeds.map(({ url }) => axios.get(url)));
 
       result
@@ -43,23 +43,22 @@ export default class Watcher {
           responses.forEach((response) => {
             const feed = this.parseFeed(response.data.contents, response.config.url);
 
-            this.watchedState.form.processState = 'finished';
-            this.addFeed(feed);
+            if (!_.isEqual(feed, {})) {
+              this.watchedState.form.processState = 'finished';
+              this.addFeed(feed);
+            }
           });
 
           this.updateFeeds();
         })
-        .catch((error) => {
+        .catch(() => {
           this.watchedState.form.errors = {
             ...onChange.target(this.watchedState).form.errors,
             url: { message: 'errors.networkError' },
           };
           this.watchedState.form.processState = 'failed';
-          console.error(error);
         });
-    };
-
-    setTimeout(getFeeds, this.watchedState.watcher.delay);
+    }, this.watchedState.watcher.delay);
   }
 
   getFeed(url) {
@@ -69,32 +68,21 @@ export default class Watcher {
       .then((response) => {
         const feed = this.parseFeed(response.data.contents, response.config.url);
 
-        this.watchedState.form.processState = 'finished';
-        this.addFeed(feed);
+        if (!_.isEqual(feed, {})) {
+          this.watchedState.form.processState = 'finished';
+          this.addFeed(feed);
+        }
       })
-      .catch((error) => {
+      .catch(() => {
         this.watchedState.form.errors = {
           ...onChange.target(this.watchedState).form.errors,
           url: { message: 'errors.networkError' },
         };
         this.watchedState.form.processState = 'failed';
-        console.error(error);
       });
   }
 
   addFeed(data) {
-    if (_.isEqual(data, {})) {
-      this.watchedState.form.errors = {
-        ...onChange.target(this.watchedState).form.errors,
-        url: { message: 'rssForm.errors.invalidRss' },
-      };
-      this.watchedState.form.processState = 'failed';
-
-      return;
-    }
-
-    const feedsLength = onChange.target(this.watchedState).feeds.length;
-    const itemsLength = onChange.target(this.watchedState).items.length;
     const {
       title,
       description,
@@ -102,11 +90,24 @@ export default class Watcher {
       items,
     } = data;
     const feed = {
-      id: feedsLength,
       title,
       description,
       url,
     };
+
+    if (!_.includes(getFeedsUrl(this.watchedState.feeds), feed.url)) {
+      this.watchedState.feeds = [feed, ...onChange.target(this.watchedState).feeds];
+    }
+
+    this.addItems(items);
+
+    if (!this.watchedState.watcher.isActive) {
+      this.start();
+    }
+  }
+
+  addItems(items) {
+    const itemsLength = onChange.target(this.watchedState).items.length;
 
     let count = itemsLength;
     const itemsGuid = onChange.target(this.watchedState).items.map((item) => item.guid);
@@ -115,20 +116,11 @@ export default class Watcher {
       .map((item) => {
         const feedItem = { ...item };
         feedItem.id = count;
-        feedItem.feedId = feed.id;
 
         count += 1;
         return feedItem;
       });
 
-    if (!_.includes(getFeedsUrl(this.watchedState.feeds), feed.url)) {
-      this.watchedState.feeds = [feed, ...onChange.target(this.watchedState).feeds];
-    }
-
     this.watchedState.items = [...feedItems, ...onChange.target(this.watchedState).items];
-
-    if (!this.watchedState.watcher.isActive) {
-      this.start();
-    }
   }
 }
