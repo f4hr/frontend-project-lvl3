@@ -45,7 +45,7 @@ const defaultState = {
 
 const init = () => {
   const state = { ...defaultState };
-  const container = document.getElementById('app');
+  const container = document.querySelector('body > main');
   const view = new View({ container, state });
   // Locale setup
   const i18nextInstance = i18next.createInstance();
