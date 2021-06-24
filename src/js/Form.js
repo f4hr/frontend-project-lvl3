@@ -21,7 +21,7 @@ export default class Form {
       url: this.DOM.el.querySelector('#url-input'),
     };
     this.watchedState = state;
-    this.proxy = 'https://hexlet-allorigins.herokuapp.com/get?url=';
+    this.proxy = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
     this.watcher = watcher;
     this.i18n = i18n;
     this.errorMessages = {
