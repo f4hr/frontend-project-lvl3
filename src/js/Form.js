@@ -53,15 +53,19 @@ export default class Form {
   processStateHandler(processState) {
     switch (processState) {
       case 'failed':
+        this.DOM.input.readOnly = false;
         this.DOM.submitButton.disabled = false;
         break;
       case 'filling':
+        this.DOM.input.readOnly = false;
         this.DOM.submitButton.disabled = false;
         break;
       case 'sending':
+        this.DOM.input.readOnly = true;
         this.DOM.submitButton.disabled = true;
         break;
       case 'finished':
+        this.DOM.input.readOnly = false;
         this.DOM.submitButton.disabled = false;
         break;
       default:
