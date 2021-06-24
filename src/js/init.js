@@ -26,6 +26,7 @@ const defaultState = {
   watcher: {
     delay: 5000,
     isActive: false,
+    proxy: 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=',
   },
   form: {
     processState: 'filling',

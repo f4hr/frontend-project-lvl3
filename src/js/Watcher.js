@@ -64,10 +64,11 @@ export default class Watcher {
 
   getFeed(url) {
     this.watchedState.form.processState = 'sending';
+    const proxiedUrl = `${this.watchedState.watcher.proxy}${encodeURIComponent(url)}`;
 
-    axios.get(url)
+    axios.get(proxiedUrl)
       .then((response) => {
-        const feed = this.parseFeed(response.data.contents, response.config.url);
+        const feed = this.parseFeed(response.data.contents, proxiedUrl);
 
         if (!_.isEqual(feed, {})) {
           this.watchedState.form.processState = 'finished';

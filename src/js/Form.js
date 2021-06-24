@@ -21,7 +21,6 @@ export default class Form {
       url: this.DOM.el.querySelector('#url-input'),
     };
     this.watchedState = state;
-    this.proxy = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
     this.watcher = watcher;
     this.i18n = i18n;
     this.errorMessages = {
@@ -45,8 +44,8 @@ export default class Form {
 
       // Send request
       if (this.watchedState.form.valid) {
-        const url = `${this.proxy}${encodeURIComponent(this.watchedState.form.fields.url)}`;
-        this.watcher.getFeed(url);
+        // const url = `${this.proxy}${encodeURIComponent(this.watchedState.form.fields.url)}`;
+        this.watcher.getFeed(this.watchedState.form.fields.url);
       }
     });
   }
@@ -72,8 +71,9 @@ export default class Form {
 
   updateValidationState() {
     const errors = this.validator.validate(this.watchedState.form.fields);
+    const proxiedUrl = `${this.watchedState.watcher.proxy}${encodeURIComponent(this.watchedState.form.fields.url)}`;
 
-    if (_.includes(getFeedsUrl(this.watchedState.feeds), this.watchedState.form.fields.url)) {
+    if (_.includes(getFeedsUrl(this.watchedState.feeds), proxiedUrl)) {
       errors.url = { message: 'rssForm.errors.rssAlreadyExists' };
     }
 
