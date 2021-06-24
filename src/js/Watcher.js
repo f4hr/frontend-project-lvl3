@@ -51,13 +51,13 @@ export default class Watcher {
 
           this.updateFeeds();
         })
-        .catch((error) => {
+        .catch(() => {
           this.watchedState.form.errors = {
             ...onChange.target(this.watchedState).form.errors,
             url: { message: 'errors.networkError' },
           };
           this.watchedState.form.processState = 'failed';
-          console.log(error);
+          console.log();
         });
     }, this.watchedState.watcher.delay);
   }
@@ -75,13 +75,12 @@ export default class Watcher {
           this.addFeed(feed);
         }
       })
-      .catch((error) => {
+      .catch(() => {
         this.watchedState.form.errors = {
           ...onChange.target(this.watchedState).form.errors,
           url: { message: 'errors.networkError' },
         };
         this.watchedState.form.processState = 'failed';
-        console.log(error);
       });
   }
 
