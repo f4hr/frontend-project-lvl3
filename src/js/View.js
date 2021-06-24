@@ -12,8 +12,9 @@ export default class View {
       state,
     } = params;
 
+    console.log(Array.from(document.querySelector('form').classList));
     this.DOM = { el: container };
-    this.DOM.form = this.DOM.el.querySelector('.rss-form');
+    this.DOM.form = this.DOM.el.querySelector('form');
     this.DOM.feeds = this.DOM.el.querySelector('.feeds');
     this.DOM.posts = this.DOM.el.querySelector('.posts');
     this.DOM.modal = document.querySelector('#modal');

@@ -14,6 +14,7 @@ export default class Form {
     } = params;
 
     this.DOM = { el: container };
+    this.DOM.input = this.DOM.el.querySelector('input[name="url"]');
     this.DOM.feedback = document.querySelector('.feedback');
     this.DOM.submitButton = this.DOM.el.querySelector('button[type="submit"]');
     this.fieldElements = {
@@ -32,6 +33,7 @@ export default class Form {
   }
 
   init() {
+    this.DOM.input.focus();
     this.DOM.el.addEventListener('submit', (e) => {
       e.preventDefault();
 
