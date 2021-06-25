@@ -1,6 +1,6 @@
 // @ts-check
 
-import _ from 'lodash';
+import { includes, isEqual } from 'lodash';
 import { getFeedsUrl, addPostToWatched } from './utils';
 import validate from './validator';
 import watch from './watcher';
@@ -10,11 +10,11 @@ const updateValidationState = (watchedState) => {
   const errors = validate(state.form.fields);
   const proxiedUrl = `${state.watcher.proxy}${encodeURIComponent(state.form.fields.url)}`;
 
-  if (_.includes(getFeedsUrl(state.feeds), proxiedUrl)) {
+  if (includes(getFeedsUrl(state.feeds), proxiedUrl)) {
     errors.url = { message: 'rssForm.errors.rssAlreadyExists' };
   }
 
-  state.form.valid = _.isEqual(errors, {});
+  state.form.valid = isEqual(errors, {});
   state.form.errors = errors;
 };
 
@@ -41,29 +41,32 @@ const initEvents = (elements, watchedState) => {
       watch(state.form.fields.url, state);
     }
   });
-  // Reset modal on close
-  modal.addEventListener('hidden.bs.modal', () => {
-    modal.querySelector('.modal-title').textContent = '';
-    modal.querySelector('.modal-body').textContent = '';
-    modal.querySelector('.full-article').href = '#';
+  // Modal events
+  modal.addEventListener('show.bs.modal', (e) => {
+    const id = parseInt(e.relatedTarget.dataset.id, 10);
+
+    addPostToWatched(id, state);
+    state.uiState.modal.postId = id;
+    state.uiState.modal.visible = true;
+  });
+  modal.addEventListener('hide.bs.modal', () => {
+    state.uiState.modal.visible = false;
   });
 };
 
-const initPostEvents = (container, watchedState) => {
+const initPostsEvents = (container, watchedState) => {
   const state = watchedState;
   const posts = Array.from(container.querySelectorAll('li'));
 
   posts.forEach((post) => {
     const link = post.querySelector('a');
     const button = post.querySelector('button');
+    const id = parseInt(button.dataset.id, 10);
+
     link.addEventListener('click', () => {
-      addPostToWatched(post.id, state);
-    });
-    button.addEventListener('click', () => {
-      addPostToWatched(post.id, state);
-      state.uiState.activePost = post.id;
+      addPostToWatched(id, state);
     });
   });
 };
 
-export { initEvents, initPostEvents };
+export { initEvents, initPostsEvents };

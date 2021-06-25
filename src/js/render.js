@@ -2,7 +2,7 @@
 
 import { getText, getPostData } from './utils';
 
-const buildFeedsContainer = () => {
+const buildFeedsWrapper = () => {
   const container = document.createElement('div');
   container.classList.add('card', 'border-0');
   const header = document.createElement('div');
@@ -12,9 +12,6 @@ const buildFeedsContainer = () => {
   heading.classList.add('card-title', 'h4');
   heading.textContent = 'Фиды';
   header.append(heading);
-  const list = document.createElement('ul');
-  list.classList.add('list-group', 'border-0', 'rounded-0');
-  container.append(list);
 
   return container;
 };
@@ -43,14 +40,17 @@ const populateFeeds = (container, feeds, listItem) => {
 
 const renderFeeds = (feeds, container) => {
   const feedsContainer = container;
-  const list = buildFeedsContainer();
+  const wrapper = buildFeedsWrapper();
   const feed = buildFeed();
-  feedsContainer.innerHTML = '';
-  feedsContainer.append(list);
+  const list = document.createElement('ul');
+  list.classList.add('list-group', 'border-0', 'rounded-0');
   populateFeeds(list, feeds, feed);
+  wrapper.append(list);
+  feedsContainer.innerHTML = '';
+  feedsContainer.append(wrapper);
 };
 
-const buildPostsContainer = () => {
+const buildPostsWrapper = () => {
   const container = document.createElement('div');
   container.classList.add('card', 'border-0');
   const header = document.createElement('div');
@@ -60,9 +60,6 @@ const buildPostsContainer = () => {
   heading.classList.add('card-title', 'h4');
   heading.textContent = 'Посты';
   header.append(heading);
-  const list = document.createElement('ul');
-  list.classList.add('list-group', 'border-0', 'rounded-0');
-  container.append(list);
 
   return container;
 };
@@ -114,14 +111,18 @@ const populatePosts = (container, posts, listItem, watchedPosts) => {
 
 const renderPosts = (posts, container, watchedPosts) => {
   const postsContainer = container;
-  const list = buildPostsContainer();
+  const wrapper = buildPostsWrapper();
   const post = buildPost();
-  postsContainer.innerHTML = '';
-  postsContainer.append(list);
+  const list = document.createElement('ul');
+  list.classList.add('list-group', 'border-0', 'rounded-0');
   populatePosts(list, posts, post, watchedPosts);
+  wrapper.append(list);
+  postsContainer.innerHTML = '';
+  postsContainer.append(wrapper);
 };
 
-const renderModal = (postId, modal, state) => {
+const renderModal = (postId, modal, watchedState) => {
+  const state = watchedState;
   const postModal = modal;
   const post = getPostData(postId, state);
 
