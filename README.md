@@ -21,3 +21,9 @@ make install
 ```sh
 make develop
 ```
+
+## TODO
+
+- [x] Add basic functionality
+- [ ] Write tests
+- [ ] Add feeds and posts sorting
