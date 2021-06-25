@@ -84,9 +84,8 @@ const watchFeeds = (watchedState) => {
 
         watchFeeds(state);
       })
-      .catch((e) => {
+      .catch(() => {
         errorHandler('errors.networkError', state);
-        console.log(e);
       });
   }, delay);
 };
@@ -109,9 +108,8 @@ const getFeed = (url, watchedState) => {
         }
       }
     })
-    .catch((e) => {
+    .catch(() => {
       errorHandler('errors.networkError', state);
-      console.log(e);
     });
 };
 
