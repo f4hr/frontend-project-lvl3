@@ -16,30 +16,27 @@ const errorHandler = (error, watchedState) => {
 const parseFeed = (data, url, watchedState) => {
   const state = watchedState;
 
-  let feed = {};
   // Try parsing response data
   try {
-    feed = parser(new DOMParser(), data, url);
+    return parser(new DOMParser(), data, url);
   } catch (error) {
     errorHandler('rssForm.errors.invalidRss', state);
   }
 
-  return feed;
+  return {};
 };
 
 const addItems = (items, watchedState) => {
   const state = watchedState;
   const itemsLength = onChange.target(state).posts.length;
 
-  let count = itemsLength;
   const itemsGuid = onChange.target(state).posts.map((item) => item.guid);
   const feedItems = items
     .filter(({ guid }) => !includes(itemsGuid, guid))
-    .map((item) => {
+    .map((item, index) => {
       const feedItem = { ...item };
-      feedItem.id = count;
+      feedItem.id = index + itemsLength;
 
-      count += 1;
       return feedItem;
     });
 
