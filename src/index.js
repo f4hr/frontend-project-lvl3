@@ -3,6 +3,4 @@
 import init from './js/init.js';
 import './scss/main.scss';
 
-init();
-
 export default init;
