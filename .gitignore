@@ -4,3 +4,4 @@ dist
 assets
 coverage
 TODO
+__tests__
