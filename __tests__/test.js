@@ -7,7 +7,7 @@ import path from 'path';
 import init from '../src/js/init';
 
 beforeEach(async () => {
-  const pathToHtml = path.resolve(__dirname, '__fixtures__/index.html');
+  const pathToHtml = path.resolve(__dirname, '../__fixtures__/index.html');
   const html = await fs.readFile(pathToHtml, 'utf8');
   document.body.innerHTML = html;
   await init();
@@ -28,7 +28,7 @@ describe('add RSS feed', () => {
     expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
   });
 
-  it('should not already existing feed', async () => {
+  it('should not add already existing feed', async () => {
     userEvent.type(screen.getByRole('textbox', { name: 'url' }), 'https://ru.hexlet.io/lessons.rss');
     userEvent.click(screen.getByRole('button', { name: 'add' }));
 
