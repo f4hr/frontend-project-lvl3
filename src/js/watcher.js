@@ -1,7 +1,7 @@
 // @ts-check
 
 import axios from 'axios';
-import { includes, isEqual } from 'lodash';
+import _ from 'lodash';
 import onChange from 'on-change';
 import parser from './parser';
 import { getFeedsUrl } from './utils';
@@ -32,7 +32,7 @@ const addItems = (items, watchedState) => {
 
   const itemsGuid = onChange.target(state).posts.map((item) => item.guid);
   const feedItems = items
-    .filter(({ guid }) => !includes(itemsGuid, guid))
+    .filter(({ guid }) => !_.includes(itemsGuid, guid))
     .map((item, index) => {
       const feedItem = { ...item };
       feedItem.id = index + itemsLength;
@@ -57,7 +57,7 @@ const addFeed = (data, watchedState) => {
     url,
   };
 
-  if (!includes(getFeedsUrl(state.feeds), feed.url)) {
+  if (!_.includes(getFeedsUrl(state.feeds), feed.url)) {
     state.feeds = [feed, ...onChange.target(state).feeds];
   }
 
@@ -77,7 +77,7 @@ const watchFeeds = (watchedState) => {
         responses.forEach((response) => {
           const feed = parseFeed(response.data.contents, response.config.url, state);
 
-          if (!isEqual(feed, {})) {
+          if (!_.isEqual(feed, {})) {
             addFeed(feed, state);
           }
         });
@@ -98,7 +98,7 @@ const getFeed = (url, watchedState) => {
     .then((response) => {
       const feed = parseFeed(response.data.contents, url, state);
 
-      if (!isEqual(feed, {})) {
+      if (!_.isEqual(feed, {})) {
         state.form.processState = 'finished';
         addFeed(feed, state);
 

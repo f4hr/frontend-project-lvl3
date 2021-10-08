@@ -1,6 +1,6 @@
 // @ts-check
 
-import { keyBy } from 'lodash';
+import _ from 'lodash';
 
 const validatorData = {};
 
@@ -13,7 +13,7 @@ export default (fields) => {
     validatorData.schema.validateSync(fields, { abortEarly: false });
     return {};
   } catch (e) {
-    return keyBy(e.inner, 'path');
+    return _.keyBy(e.inner, 'path');
   }
 };
 export { initValidator };
