@@ -1,9 +1,21 @@
 // @ts-check
 
 import _ from 'lodash';
-import { getProxiedUrl, getFeedsUrl, addPostToWatched } from './utils';
+import onChange from 'on-change';
+import { getProxiedUrl, getFeedsUrl } from './utils';
 import validate from './validator';
 import watch from './watcher';
+
+const addPostToWatched = (id, watchedState) => {
+  const state = watchedState;
+  const { watchedPosts } = onChange.target(state).uiState;
+
+  if (_.includes(watchedPosts, id)) {
+    return;
+  }
+
+  state.uiState.watchedPosts = [...watchedPosts, id];
+};
 
 const updateValidationState = (watchedState) => {
   const state = watchedState;

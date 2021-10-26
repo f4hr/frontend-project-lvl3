@@ -1,6 +1,13 @@
 // @ts-check
 
-import { getText, getPostData } from './utils';
+import _ from 'lodash';
+import onChange from 'on-change';
+import { getText } from './utils';
+
+const getPostData = (id, state) => {
+  const { posts } = onChange.target(state);
+  return _.find(posts, ['id', id]);
+};
 
 const buildFeedsWrapper = () => {
   const container = document.createElement('div');
