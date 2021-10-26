@@ -27,7 +27,7 @@ const defaultState = {
   uiState: {
     watchedPosts: [],
     modal: {
-      postId: -1,
+      postId: null,
       visible: false,
     },
   },
