@@ -9,7 +9,7 @@ const getPostData = (id, state) => {
   return _.find(posts, ['id', id]);
 };
 
-const buildFeedsWrapper = () => {
+const buildWrapper = (title) => {
   const container = document.createElement('div');
   container.classList.add('card', 'border-0');
   const header = document.createElement('div');
@@ -17,7 +17,7 @@ const buildFeedsWrapper = () => {
   container.append(header);
   const heading = document.createElement('h2');
   heading.classList.add('card-title', 'h4');
-  heading.textContent = 'Фиды';
+  heading.textContent = title;
   header.append(heading);
 
   return container;
@@ -47,7 +47,7 @@ const populateFeeds = (container, feeds, listItem) => {
 
 const renderFeeds = (feeds, container) => {
   const feedsContainer = container;
-  const wrapper = buildFeedsWrapper();
+  const wrapper = buildWrapper('Фиды');
   const feed = buildFeed();
   const list = document.createElement('ul');
   list.classList.add('list-group', 'border-0', 'rounded-0');
@@ -55,20 +55,6 @@ const renderFeeds = (feeds, container) => {
   wrapper.append(list);
   feedsContainer.innerHTML = '';
   feedsContainer.append(wrapper);
-};
-
-const buildPostsWrapper = () => {
-  const container = document.createElement('div');
-  container.classList.add('card', 'border-0');
-  const header = document.createElement('div');
-  header.classList.add('card-body');
-  container.append(header);
-  const heading = document.createElement('h2');
-  heading.classList.add('card-title', 'h4');
-  heading.textContent = 'Посты';
-  header.append(heading);
-
-  return container;
 };
 
 const buildPost = () => {
@@ -118,7 +104,7 @@ const populatePosts = (container, posts, listItem, watchedPosts) => {
 
 const renderPosts = (posts, container, watchedPosts) => {
   const postsContainer = container;
-  const wrapper = buildPostsWrapper();
+  const wrapper = buildWrapper('Посты');
   const post = buildPost();
   const list = document.createElement('ul');
   list.classList.add('list-group', 'border-0', 'rounded-0');
