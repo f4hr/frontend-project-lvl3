@@ -4,7 +4,9 @@ import axios from 'axios';
 import _ from 'lodash';
 import onChange from 'on-change';
 import parser from './parser';
-import { getFeedsUrl } from './utils';
+import { getProxiedUrl, getFeedsUrl } from './utils';
+
+const UPDATE_DELAY = 5000;
 
 const errorHandler = (error, watchedState) => {
   const state = watchedState;
@@ -64,9 +66,8 @@ const addFeed = (data, watchedState) => {
   addItems(items, state);
 };
 
-const watchFeeds = (watchedState) => {
+const startWatcher = (watchedState) => {
   const state = watchedState;
-  const { delay } = state.watcher;
 
   setTimeout(() => {
     const { feeds } = onChange.target(state);
@@ -82,15 +83,15 @@ const watchFeeds = (watchedState) => {
           }
         });
 
-        watchFeeds(state);
+        startWatcher(state);
       })
       .catch(() => {
         errorHandler('errors.networkError', state);
       });
-  }, delay);
+  }, UPDATE_DELAY);
 };
 
-const getFeed = (url, watchedState) => {
+const watchFeed = (url, watchedState) => {
   const state = watchedState;
 
   state.form.processState = 'sending';
@@ -102,9 +103,9 @@ const getFeed = (url, watchedState) => {
         state.form.processState = 'finished';
         addFeed(feed, state);
 
-        if (!state.watcher.isActive) {
-          state.watcher.isActive = true;
-          watchFeeds(state);
+        if (state.watcher.state === 'idle') {
+          state.watcher.state = 'active';
+          startWatcher(state);
         }
       }
     })
@@ -115,7 +116,7 @@ const getFeed = (url, watchedState) => {
 
 export default (url, watchedState) => {
   const state = watchedState;
-  const proxiedUrl = `${state.watcher.proxy}${encodeURIComponent(url)}`;
+  const proxiedUrl = getProxiedUrl(url);
 
-  getFeed(proxiedUrl, state);
+  watchFeed(proxiedUrl, state);
 };

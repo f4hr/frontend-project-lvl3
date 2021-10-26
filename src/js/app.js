@@ -12,9 +12,7 @@ import {
 
 const defaultState = {
   watcher: {
-    delay: 5000,
-    isActive: false,
-    proxy: 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=',
+    state: 'idle',
   },
   form: {
     processState: 'filling',
