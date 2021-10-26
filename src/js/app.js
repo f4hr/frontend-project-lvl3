@@ -1,6 +1,13 @@
 // @ts-check
 
+import 'bootstrap';
+import i18n from 'i18next';
 import onChange from 'on-change';
+import * as yup from 'yup';
+import { setLocale } from 'yup';
+import { getText } from './utils';
+import resources from '../../locales';
+import { initValidator } from './validator';
 import { initEvents, initPostsEvents } from './events';
 import {
   renderFeeds,
@@ -85,14 +92,35 @@ const initWatchedState = (state, elements) => {
 };
 
 const app = () => {
-  // Init state
-  const state = { ...defaultState };
-  // Init DOM elements
-  const elements = initElements();
-  // Init state watcher
-  const watchedState = initWatchedState(state, elements);
-  // Init event handlers
-  initEvents(elements, watchedState);
+  // Locale setup
+  i18n.init({
+    lng: 'ru',
+    debug: false,
+    resources,
+  }).then(() => {
+    // Validation setup
+    setLocale({
+      mixed: {
+        required: getText('errors.fieldRequired'),
+      },
+      string: {
+        url: getText('errors.urlNotValid'),
+        required: getText('errors.fieldRequired'),
+      },
+    });
+    const schema = yup.object().shape({
+      url: yup.string().required().url(),
+    });
+    initValidator(schema);
+    // Init state
+    const state = { ...defaultState };
+    // Init DOM elements
+    const elements = initElements();
+    // Init state watcher
+    const watchedState = initWatchedState(state, elements);
+    // Init event handlers
+    initEvents(elements, watchedState);
+  });
 };
 
 export default app;

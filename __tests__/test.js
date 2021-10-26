@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 import { promises as fs } from 'fs';
 import path from 'path';
-import init from '../src/js/init';
+import init from '../src/js/app';
 
 beforeEach(async () => {
   const pathToHtml = path.resolve(__dirname, '../__fixtures__/index.html');
