@@ -1,14 +1,14 @@
 // @ts-check
 
 import _ from 'lodash';
-import { getFeedsUrl, addPostToWatched } from './utils';
+import { getProxiedUrl, getFeedsUrl, addPostToWatched } from './utils';
 import validate from './validator';
 import watch from './watcher';
 
 const updateValidationState = (watchedState) => {
   const state = watchedState;
   const errors = validate(state.form.fields);
-  const proxiedUrl = `${state.watcher.proxy}${encodeURIComponent(state.form.fields.url)}`;
+  const proxiedUrl = getProxiedUrl(state.form.fields.url);
 
   if (_.includes(getFeedsUrl(state.feeds), proxiedUrl)) {
     errors.url = { message: 'rssForm.errors.rssAlreadyExists' };
