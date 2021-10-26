@@ -10,11 +10,7 @@ const addPostToWatched = (id, watchedState) => {
   const state = watchedState;
   const { watchedPosts } = onChange.target(state).uiState;
 
-  if (_.includes(watchedPosts, id)) {
-    return;
-  }
-
-  state.uiState.watchedPosts = [...watchedPosts, id];
+  if (!_.includes(watchedPosts, id)) state.uiState.watchedPosts = [...watchedPosts, id];
 };
 
 const updateValidationState = (watchedState) => {
