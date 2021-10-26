@@ -61,35 +61,31 @@ const initElements = () => {
   };
 };
 
-const initWatchedState = (state, elements) => {
-  const watchedState = onChange(state, (path, value) => {
-    switch (path) {
-      case 'feeds':
-        renderFeeds(value, elements.feedsContainer);
-        break;
-      case 'posts':
-        renderPosts(value, elements.postsContainer, state.uiState.watchedPosts);
-        initPostsEvents(elements.postsContainer, watchedState);
-        break;
-      case 'form.processState':
-        processStateHandler(value, elements);
-        break;
-      case 'form.errors':
-        renderErrors(value, elements, state);
-        break;
-      case 'uiState.watchedPosts':
-        renderPosts(state.posts, elements.postsContainer, state.uiState.watchedPosts);
-        break;
-      case 'uiState.modal.postId':
-        renderModal(value, elements.modal, state);
-        break;
-      default:
-        break;
-    }
-  });
-
-  return watchedState;
-};
+const initWatchedState = (state, elements) => onChange(state, (path, value) => {
+  switch (path) {
+    case 'feeds':
+      renderFeeds(value, elements.feedsContainer);
+      break;
+    case 'posts':
+      renderPosts(value, elements.postsContainer, state.uiState.watchedPosts);
+      initPostsEvents(elements.postsContainer, state);
+      break;
+    case 'form.processState':
+      processStateHandler(value, elements);
+      break;
+    case 'form.errors':
+      renderErrors(value, elements, state);
+      break;
+    case 'uiState.watchedPosts':
+      renderPosts(state.posts, elements.postsContainer, state.uiState.watchedPosts);
+      break;
+    case 'uiState.modal.postId':
+      renderModal(value, elements.modal, state);
+      break;
+    default:
+      break;
+  }
+});
 
 const app = () => {
   // Locale setup
