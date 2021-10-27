@@ -50,6 +50,7 @@ const renderFeeds = (feeds, container) => {
   const wrapper = buildWrapper('Фиды');
   const feed = buildFeed();
   const list = document.createElement('ul');
+
   list.classList.add('list-group', 'border-0', 'rounded-0');
   populateFeeds(list, feeds, feed);
   wrapper.append(list);
@@ -107,6 +108,7 @@ const renderPosts = (posts, container, watchedPosts) => {
   const wrapper = buildWrapper('Посты');
   const post = buildPost();
   const list = document.createElement('ul');
+
   list.classList.add('list-group', 'border-0', 'rounded-0');
   populatePosts(list, posts, post, watchedPosts);
   wrapper.append(list);
@@ -122,14 +124,6 @@ const renderModal = (postId, modal, watchedState) => {
   postModal.querySelector('.modal-title').textContent = post.title;
   postModal.querySelector('.modal-body').textContent = post.description;
   postModal.querySelector('.full-article').href = post.url;
-};
-
-const resetInputs = (inputs) => {
-  inputs.forEach((input) => {
-    const element = input;
-
-    element.value = '';
-  });
 };
 
 const processStateHandler = (processState, elements) => {
@@ -150,11 +144,11 @@ const processStateHandler = (processState, elements) => {
       break;
     case 'finished':
       input.readOnly = false;
+      input.value = '';
       submitBtn.disabled = false;
       feedback.classList.remove('text-danger');
       feedback.classList.add('text-success');
       feedback.innerHTML = getText('rssForm.success.rssDownloaded');
-      resetInputs([input]);
       break;
     default:
       throw new Error(`Unknown state: ${processState}`);
@@ -172,11 +166,11 @@ const renderErrors = (errors, elements, watchedState) => {
     feedback.classList.remove('text-success');
     feedback.classList.add('text-danger');
   }
-  if (!error) {
-    return;
+
+  if (error) {
+    feedback.textContent = getText(state.form.errors.url.message);
+    input.classList.add('is-invalid');
   }
-  feedback.textContent = getText(state.form.errors.url.message);
-  input.classList.add('is-invalid');
 };
 
 export {
