@@ -1,33 +1,25 @@
 // @ts-check
 
-const state = {};
+const parser = new DOMParser();
 
-const getTitle = () => state.document.querySelector('channel > title').textContent;
+export default (data, url) => {
+  const doc = parser.parseFromString(data, 'application/xml');
 
-const getDescription = () => state.document.querySelector('channel > description').textContent;
-
-const getFeedUrl = () => state.feedUrl;
-
-const getItems = () => {
-  const items = Array.from(state.document.querySelectorAll('channel > item'));
-
-  return items.map((item) => ({
-    title: item.querySelector('title').textContent,
-    description: item.querySelector('description').textContent,
-    url: item.querySelector('link').textContent,
-    guid: item.querySelector('guid').textContent,
-    date: item.querySelector('pubDate').textContent,
-  }));
-};
-
-export default (parser, data, url) => {
-  state.document = parser.parseFromString(data, 'application/xml');
-  state.feedUrl = url;
+  const title = doc.querySelector('channel > title').textContent;
+  const description = doc.querySelector('channel > description').textContent;
+  const items = Array.from(doc.querySelectorAll('channel > item'))
+    .map((item) => ({
+      title: item.querySelector('title').textContent,
+      description: item.querySelector('description').textContent,
+      url: item.querySelector('link').textContent,
+      guid: item.querySelector('guid').textContent,
+      date: item.querySelector('pubDate').textContent,
+    }));
 
   return {
-    title: getTitle(),
-    description: getDescription(),
-    url: getFeedUrl(),
-    items: getItems(),
+    title,
+    description,
+    url,
+    items,
   };
 };

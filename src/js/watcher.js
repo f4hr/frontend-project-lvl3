@@ -3,7 +3,7 @@
 import axios from 'axios';
 import _ from 'lodash';
 import onChange from 'on-change';
-import parser from './parser';
+import parse from './parser';
 import { getProxiedUrl, getFeedsUrl } from './utils';
 
 const UPDATE_DELAY = 5000;
@@ -18,9 +18,8 @@ const errorHandler = (error, watchedState) => {
 const parseFeed = (data, url, watchedState) => {
   const state = watchedState;
 
-  // Try parsing response data
   try {
-    return parser(new DOMParser(), data, url);
+    return parse(data, url);
   } catch (error) {
     errorHandler('rssForm.errors.invalidRss', state);
   }
@@ -78,9 +77,7 @@ const startWatcher = (watchedState) => {
         responses.forEach((response) => {
           const feed = parseFeed(response.data.contents, response.config.url, state);
 
-          if (!_.isEqual(feed, {})) {
-            addFeed(feed, state);
-          }
+          if (!_.isEqual(feed, {})) addFeed(feed, state);
         });
 
         startWatcher(state);
