@@ -15,16 +15,14 @@ const errorHandler = (error, watchedState) => {
   state.form.processState = 'failed';
 };
 
-const parseFeed = (data, url, watchedState) => {
-  const state = watchedState;
+const parseFeed = (data, state) => {
+  const parsedData = parse(data);
 
-  try {
-    return parse(data, url);
-  } catch (error) {
+  if (_.isEqual(parsedData, {})) {
     errorHandler('rssForm.errors.invalidRss', state);
   }
 
-  return {};
+  return parsedData;
 };
 
 const addItems = (items, watchedState) => {
@@ -44,12 +42,11 @@ const addItems = (items, watchedState) => {
   state.posts = [...feedItems, ...onChange.target(state).posts];
 };
 
-const addFeed = (data, watchedState) => {
+const addFeed = (data, url, watchedState) => {
   const state = watchedState;
   const {
     title,
     description,
-    url,
     items,
   } = data;
   const feed = {
@@ -65,9 +62,7 @@ const addFeed = (data, watchedState) => {
   addItems(items, state);
 };
 
-const startWatcher = (watchedState) => {
-  const state = watchedState;
-
+const startWatcher = (state) => {
   setTimeout(() => {
     const { feeds } = onChange.target(state);
     const result = Promise.all(feeds.map(({ url }) => axios.get(url)));
@@ -75,9 +70,9 @@ const startWatcher = (watchedState) => {
     result
       .then((responses) => {
         responses.forEach((response) => {
-          const feed = parseFeed(response.data.contents, response.config.url, state);
+          const feed = parseFeed(response.data.contents, state);
 
-          if (!_.isEqual(feed, {})) addFeed(feed, state);
+          if (!_.isEqual(feed, {})) addFeed(feed, response.config.url, state);
         });
 
         startWatcher(state);
@@ -94,11 +89,11 @@ const watchFeed = (url, watchedState) => {
   state.form.processState = 'sending';
   axios.get(url)
     .then((response) => {
-      const feed = parseFeed(response.data.contents, url, state);
+      const feed = parseFeed(response.data.contents, state);
 
       if (!_.isEqual(feed, {})) {
         state.form.processState = 'finished';
-        addFeed(feed, state);
+        addFeed(feed, url, state);
 
         if (state.watcher.state === 'idle') {
           state.watcher.state = 'active';

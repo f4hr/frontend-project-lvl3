@@ -2,8 +2,11 @@
 
 const parser = new DOMParser();
 
-export default (data, url) => {
+export default (data) => {
   const doc = parser.parseFromString(data, 'application/xml');
+  const errorNode = doc.querySelector('parsererror');
+
+  if (errorNode) return {};
 
   const title = doc.querySelector('channel > title').textContent;
   const description = doc.querySelector('channel > description').textContent;
@@ -11,15 +14,14 @@ export default (data, url) => {
     .map((item) => ({
       title: item.querySelector('title').textContent,
       description: item.querySelector('description').textContent,
-      url: item.querySelector('link').textContent,
+      link: item.querySelector('link').textContent,
       guid: item.querySelector('guid').textContent,
-      date: item.querySelector('pubDate').textContent,
+      pubDate: item.querySelector('pubDate').textContent,
     }));
 
   return {
     title,
     description,
-    url,
     items,
   };
 };
