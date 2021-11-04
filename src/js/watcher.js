@@ -15,16 +15,6 @@ const errorHandler = (error, watchedState) => {
   state.form.processState = 'failed';
 };
 
-const parseFeed = (data, state) => {
-  const parsedData = parse(data);
-
-  if (_.isEqual(parsedData, {})) {
-    errorHandler('rssForm.errors.invalidRss', state);
-  }
-
-  return parsedData;
-};
-
 const addItems = (items, watchedState) => {
   const state = watchedState;
   const itemsLength = onChange.target(state).posts.length;
@@ -55,30 +45,33 @@ const addFeed = (data, url, watchedState) => {
     url,
   };
 
-  if (!_.includes(getFeedsUrl(state.feeds), feed.url)) {
-    state.feeds = [feed, ...onChange.target(state).feeds];
+  if (!_.includes(getFeedsUrl(state), feed.url)) {
+    state.feeds.unshift(feed);
   }
 
   addItems(items, state);
 };
 
+const getFeed = (url) => axios.get(getProxiedUrl(url))
+  .then((response) => ({ url, response }));
+
 const startWatcher = (state) => {
   setTimeout(() => {
     const { feeds } = onChange.target(state);
-    const result = Promise.all(feeds.map(({ url }) => axios.get(url)));
 
-    result
+    Promise.all(feeds.map(({ url }) => getFeed(url)))
       .then((responses) => {
-        responses.forEach((response) => {
-          const feed = parseFeed(response.data.contents, state);
+        responses.forEach(({ url, response }) => {
+          const feed = parse(response.data.contents);
 
-          if (!_.isEqual(feed, {})) addFeed(feed, response.config.url, state);
+          addFeed(feed, url, state);
         });
-
-        startWatcher(state);
       })
-      .catch(() => {
-        errorHandler('errors.networkError', state);
+      .catch((error) => {
+        errorHandler(error.message, state);
+      })
+      .finally(() => {
+        startWatcher(state);
       });
   }, UPDATE_DELAY);
 };
@@ -87,28 +80,34 @@ const watchFeed = (url, watchedState) => {
   const state = watchedState;
 
   state.form.processState = 'sending';
-  axios.get(url)
-    .then((response) => {
-      const feed = parseFeed(response.data.contents, state);
 
-      if (!_.isEqual(feed, {})) {
-        state.form.processState = 'finished';
-        addFeed(feed, url, state);
+  getFeed(url)
+    .then(({ response }) => {
+      const feed = parse(response.data.contents);
 
-        if (state.watcher.state === 'idle') {
-          state.watcher.state = 'active';
-          startWatcher(state);
-        }
+      state.form.processState = 'finished';
+      addFeed(feed, url, state);
+
+      if (state.watcher.state === 'idle') {
+        state.watcher.state = 'active';
+        startWatcher(state);
       }
     })
-    .catch(() => {
-      errorHandler('errors.networkError', state);
+    .catch((e) => {
+      if (e.isAxiosError) {
+        errorHandler('errors.networkError', state);
+
+        setTimeout(() => {
+          watchFeed(url, watchedState);
+        }, UPDATE_DELAY);
+      } else {
+        errorHandler(e.message, state);
+      }
     });
 };
 
 export default (url, watchedState) => {
   const state = watchedState;
-  const proxiedUrl = getProxiedUrl(url);
 
-  watchFeed(proxiedUrl, state);
+  watchFeed(url, state);
 };
