@@ -6,7 +6,7 @@ export default (data) => {
   const doc = parser.parseFromString(data, 'application/xml');
   const errorNode = doc.querySelector('parsererror');
 
-  if (errorNode) return {};
+  if (errorNode) throw new Error('rssForm.errors.invalidRss');
 
   const title = doc.querySelector('channel > title').textContent;
   const description = doc.querySelector('channel > description').textContent;
