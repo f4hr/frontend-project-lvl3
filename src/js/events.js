@@ -2,7 +2,6 @@
 
 import _ from 'lodash';
 import onChange from 'on-change';
-import { getProxiedUrl, getFeedsUrl } from './utils';
 import validate from './validator';
 import watch from './watcher';
 
@@ -11,19 +10,6 @@ const addPostToWatched = (id, watchedState) => {
   const { watchedPosts } = onChange.target(state).uiState;
 
   if (!_.includes(watchedPosts, id)) state.uiState.watchedPosts = [...watchedPosts, id];
-};
-
-const updateValidationState = (watchedState) => {
-  const state = watchedState;
-  const errors = validate(state.form.fields);
-  const proxiedUrl = getProxiedUrl(state.form.fields.url);
-
-  if (_.includes(getFeedsUrl(state.feeds), proxiedUrl)) {
-    errors.url = { message: 'rssForm.errors.rssAlreadyExists' };
-  }
-
-  state.form.valid = _.isEqual(errors, {});
-  state.form.errors = errors;
 };
 
 const initEvents = (elements, watchedState) => {
@@ -40,14 +26,19 @@ const initEvents = (elements, watchedState) => {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
+    state.form.fields.url = input.value.trim();
     // Validate form
-    state.form.fields.url = input.value;
-    updateValidationState(state);
-
-    if (state.form.valid) {
-      // Add RSS feed to watcher
-      watch(state.form.fields.url, state);
-    }
+    validate(state.form.fields, state)
+      .then(() => {
+        state.form.valid = true;
+        state.form.errors = {};
+        // Add RSS feed to watcher
+        watch(state.form.fields.url, state);
+      })
+      .catch((error) => {
+        state.form.valid = false;
+        state.form.errors = { url: { message: error.message } };
+      });
   });
   // Modal events
   modal.addEventListener('show.bs.modal', (e) => {
