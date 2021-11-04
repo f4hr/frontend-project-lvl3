@@ -58,7 +58,7 @@ const renderFeeds = (feeds, container) => {
   feedsContainer.append(wrapper);
 };
 
-const buildPost = () => {
+const buildPost = (i18n) => {
   const listItem = document.createElement('li');
   listItem.classList.add(
     'list-group-item',
@@ -79,7 +79,7 @@ const buildPost = () => {
   listItemBtn.setAttribute('type', 'button');
   listItemBtn.dataset.bsToggle = 'modal';
   listItemBtn.dataset.bsTarget = '#modal';
-  listItemBtn.textContent = getText('feed.viewBtn');
+  listItemBtn.textContent = getText('feed.viewBtn', i18n);
   listItem.append(listItemBtn);
 
   return listItem;
@@ -96,17 +96,17 @@ const populatePosts = (container, posts, listItem, watchedPosts) => {
 
     link.classList.add(...linkClass);
     link.textContent = post.title;
-    link.href = post.url;
+    link.href = post.link;
     button.dataset.id = post.id;
 
     container.append(item);
   });
 };
 
-const renderPosts = (posts, container, watchedPosts) => {
+const renderPosts = (posts, container, watchedPosts, i18n) => {
   const postsContainer = container;
   const wrapper = buildWrapper('Посты');
-  const post = buildPost();
+  const post = buildPost(i18n);
   const list = document.createElement('ul');
 
   list.classList.add('list-group', 'border-0', 'rounded-0');
@@ -116,17 +116,19 @@ const renderPosts = (posts, container, watchedPosts) => {
   postsContainer.append(wrapper);
 };
 
-const renderModal = (postId, modal, watchedState) => {
+const renderModal = (postId, modal, watchedState, i18n) => {
   const state = watchedState;
-  const postModal = modal;
   const post = getPostData(postId, state);
 
-  postModal.querySelector('.modal-title').textContent = post.title;
-  postModal.querySelector('.modal-body').textContent = post.description;
-  postModal.querySelector('.full-article').href = post.url;
+  modal.querySelector('.modal-title').textContent = post.title;
+  modal.querySelector('.modal-body').textContent = post.description;
+  modal.querySelector('.full-article').href = post.link;
+  modal.querySelector('.full-article').textContent = getText('postModal.readFull', i18n);
+  modal.querySelector('.btn-secondary').textContent = getText('buttons.close', i18n);
+  modal.querySelector('.btn-close').setAttribute('aria-label', getText('buttons.close', i18n));
 };
 
-const processStateHandler = (processState, elements) => {
+const processStateHandler = (processState, elements, i18n) => {
   const { input, submitBtn, feedback } = elements;
 
   switch (processState) {
@@ -148,14 +150,14 @@ const processStateHandler = (processState, elements) => {
       submitBtn.disabled = false;
       feedback.classList.remove('text-danger');
       feedback.classList.add('text-success');
-      feedback.innerHTML = getText('rssForm.success.rssDownloaded');
+      feedback.innerHTML = getText('rssForm.success.rssDownloaded', i18n);
       break;
     default:
       throw new Error(`Unknown state: ${processState}`);
   }
 };
 
-const renderErrors = (errors, elements, watchedState) => {
+const renderErrors = (errors, elements, watchedState, i18n) => {
   const { input, feedback } = elements;
   const state = watchedState;
   const error = errors.url;
@@ -168,7 +170,7 @@ const renderErrors = (errors, elements, watchedState) => {
   }
 
   if (error) {
-    feedback.textContent = getText(state.form.errors.url.message);
+    feedback.textContent = getText(state.form.errors.url.message, i18n);
     input.classList.add('is-invalid');
   }
 };

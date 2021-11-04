@@ -1,13 +1,10 @@
 // @ts-check
 
 import 'bootstrap';
-import i18n from 'i18next';
+import i18next from 'i18next';
 import onChange from 'on-change';
-import * as yup from 'yup';
 import { setLocale } from 'yup';
-import { getText } from './utils';
 import resources from '../../locales';
-import { initValidator } from './validator';
 import { initEvents, initPostsEvents } from './events';
 import {
   renderFeeds,
@@ -16,6 +13,8 @@ import {
   renderErrors,
   processStateHandler,
 } from './render';
+
+const DEFAULT_LANG = 'ru';
 
 const defaultState = {
   watcher: {
@@ -61,26 +60,26 @@ const initElements = () => {
   };
 };
 
-const initWatchedState = (state, elements) => onChange(state, (path, value) => {
+const initWatchedState = (state, elements, i18n) => onChange(state, (path, value) => {
   switch (path) {
     case 'feeds':
       renderFeeds(value, elements.feedsContainer);
       break;
     case 'posts':
-      renderPosts(value, elements.postsContainer, state.uiState.watchedPosts);
+      renderPosts(value, elements.postsContainer, state.uiState.watchedPosts, i18n);
       initPostsEvents(elements.postsContainer, state);
       break;
     case 'form.processState':
-      processStateHandler(value, elements);
+      processStateHandler(value, elements, i18n);
       break;
     case 'form.errors':
-      renderErrors(value, elements, state);
+      renderErrors(value, elements, state, i18n);
       break;
     case 'uiState.watchedPosts':
-      renderPosts(state.posts, elements.postsContainer, state.uiState.watchedPosts);
+      renderPosts(state.posts, elements.postsContainer, state.uiState.watchedPosts, i18n);
       break;
     case 'uiState.modal.postId':
-      renderModal(value, elements.modal, state);
+      renderModal(value, elements.modal, state, i18n);
       break;
     default:
       break;
@@ -89,31 +88,29 @@ const initWatchedState = (state, elements) => onChange(state, (path, value) => {
 
 const app = () => {
   // Locale setup
-  i18n.init({
-    lng: 'ru',
+  setLocale({
+    mixed: {
+      required: 'errors.fieldRequired',
+      notOneOf: 'rssForm.errors.rssAlreadyExists',
+    },
+    string: {
+      url: 'errors.invalidUrl',
+    },
+  });
+
+  const i18nextInstance = i18next.createInstance();
+
+  i18nextInstance.init({
+    lng: DEFAULT_LANG,
     debug: false,
     resources,
   }).then(() => {
-    // Validation setup
-    setLocale({
-      mixed: {
-        required: getText('errors.fieldRequired'),
-      },
-      string: {
-        url: getText('errors.urlNotValid'),
-        required: getText('errors.fieldRequired'),
-      },
-    });
-    const schema = yup.object().shape({
-      url: yup.string().required().url(),
-    });
-    initValidator(schema);
     // Init state
     const state = { ...defaultState };
     // Init DOM elements
     const elements = initElements();
     // Init state watcher
-    const watchedState = initWatchedState(state, elements);
+    const watchedState = initWatchedState(state, elements, i18nextInstance);
     // Init event handlers
     initEvents(elements, watchedState);
   });
