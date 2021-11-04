@@ -11,12 +11,18 @@ export default {
         invalidRss: 'Ресурс не содержит валидный RSS',
       },
     },
+    postModal: {
+      readFull: 'Читать полностью',
+    },
     feed: {
       viewBtn: 'Просмотр',
     },
+    buttons: {
+      close: 'Закрыть',
+    },
     errors: {
       networkError: 'Ошибка сети',
-      urlNotValid: 'Ссылка должна быть валидным URL',
+      invalidUrl: 'Ссылка должна быть валидным URL',
       fieldRequired: 'Не должно быть пустым',
     },
   },
