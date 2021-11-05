@@ -1,11 +1,10 @@
 // @ts-check
 
 import * as yup from 'yup';
-import { getFeedsUrl } from './utils';
 
-export default (fields, state) => {
+export default (fields, feeds) => {
   const schema = yup.object().shape({
-    url: yup.string().required().url().notOneOf(getFeedsUrl(state)),
+    url: yup.string().required().url().notOneOf(feeds),
   });
 
   return schema.validate(fields, { abortEarly: true });

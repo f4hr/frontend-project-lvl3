@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import onChange from 'on-change';
 import validate from './validator';
+import { getFeedsUrl } from './utils';
 import watch from './watcher';
 
 const addPostToWatched = (id, watchedState) => {
@@ -28,7 +29,7 @@ const initEvents = (elements, watchedState) => {
 
     state.form.fields.url = input.value.trim();
     // Validate form
-    validate(state.form.fields, state)
+    validate(state.form.fields, getFeedsUrl(state))
       .then(() => {
         state.form.valid = true;
         state.form.errors = {};
