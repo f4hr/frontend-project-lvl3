@@ -86,6 +86,7 @@ const watchFeed = (url, watchedState) => {
       const feed = parse(response.data.contents);
 
       state.form.processState = 'finished';
+
       addFeed(feed, url, state);
 
       if (state.watcher.state === 'idle') {
@@ -106,8 +107,4 @@ const watchFeed = (url, watchedState) => {
     });
 };
 
-export default (url, watchedState) => {
-  const state = watchedState;
-
-  watchFeed(url, state);
-};
+export default watchFeed;
