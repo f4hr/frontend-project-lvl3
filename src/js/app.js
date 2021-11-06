@@ -1,6 +1,7 @@
 // @ts-check
 
 import 'bootstrap';
+import _ from 'lodash';
 import i18next from 'i18next';
 import onChange from 'on-change';
 import { setLocale } from 'yup';
@@ -86,7 +87,7 @@ const initWatchedState = (state, elements, i18n) => onChange(state, (path, value
   }
 });
 
-const app = () => {
+export default () => {
   // Locale setup
   setLocale({
     mixed: {
@@ -100,13 +101,13 @@ const app = () => {
 
   const i18nextInstance = i18next.createInstance();
 
-  i18nextInstance.init({
+  return i18nextInstance.init({
     lng: DEFAULT_LANG,
     debug: false,
     resources,
   }).then(() => {
     // Init state
-    const state = { ...defaultState };
+    const state = _.cloneDeep(defaultState);
     // Init DOM elements
     const elements = initElements();
     // Init state watcher
@@ -115,5 +116,3 @@ const app = () => {
     initEvents(elements, watchedState);
   });
 };
-
-export default app;
