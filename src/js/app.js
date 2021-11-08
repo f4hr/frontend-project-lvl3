@@ -17,7 +17,7 @@ import {
 
 const DEFAULT_LANG = 'ru';
 
-const defaultState = {
+const DEFAULT_STATE = {
   watcher: {
     state: 'idle',
   },
@@ -107,7 +107,7 @@ export default () => {
     resources,
   }).then(() => {
     // Init state
-    const state = _.cloneDeep(defaultState);
+    const state = _.cloneDeep(DEFAULT_STATE);
     // Init DOM elements
     const elements = initElements();
     // Init state watcher
