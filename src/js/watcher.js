@@ -2,7 +2,6 @@
 
 import axios from 'axios';
 import _ from 'lodash';
-import onChange from 'on-change';
 import parse from './parser';
 import { getProxiedUrl, getFeedsUrl } from './utils';
 
@@ -11,15 +10,15 @@ const UPDATE_DELAY = 5000;
 const errorHandler = (error, watchedState) => {
   const state = watchedState;
 
-  state.form.errors = { ...onChange.target(state).form.errors, url: { message: error } };
+  state.form.errors = { ...state.form.errors, url: { message: error } };
   state.form.processState = 'failed';
 };
 
 const addItems = (items, watchedState) => {
   const state = watchedState;
-  const itemsLength = onChange.target(state).posts.length;
+  const itemsLength = state.posts.length;
 
-  const itemsGuid = onChange.target(state).posts.map((item) => item.guid);
+  const itemsGuid = state.posts.map((item) => item.guid);
   const feedItems = items
     .filter(({ guid }) => !_.includes(itemsGuid, guid))
     .map((item, index) => {
@@ -29,7 +28,7 @@ const addItems = (items, watchedState) => {
       return feedItem;
     });
 
-  state.posts = [...feedItems, ...onChange.target(state).posts];
+  state.posts = [...feedItems, ...state.posts];
 };
 
 const addFeed = (data, url, watchedState) => {
@@ -57,7 +56,7 @@ const getFeed = (url) => axios.get(getProxiedUrl(url))
 
 const startWatcher = (state) => {
   setTimeout(() => {
-    const { feeds } = onChange.target(state);
+    const { feeds } = state;
 
     Promise.all(feeds.map(({ url }) => getFeed(url)))
       .then((responses) => {

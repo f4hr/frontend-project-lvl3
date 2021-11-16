@@ -1,11 +1,10 @@
 // @ts-check
 
 import _ from 'lodash';
-import onChange from 'on-change';
 import { getText } from './utils';
 
 const getPostData = (id, state) => {
-  const { posts } = onChange.target(state);
+  const { posts } = state;
   return _.find(posts, ['id', id]);
 };
 
