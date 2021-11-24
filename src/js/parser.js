@@ -15,8 +15,6 @@ export default (data) => {
       title: item.querySelector('title').textContent,
       description: item.querySelector('description').textContent,
       link: item.querySelector('link').textContent,
-      guid: item.querySelector('guid').textContent,
-      pubDate: item.querySelector('pubDate').textContent,
     }));
 
   return {

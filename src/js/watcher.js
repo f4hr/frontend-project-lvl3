@@ -18,9 +18,9 @@ const addItems = (items, watchedState) => {
   const state = watchedState;
   const itemsLength = state.posts.length;
 
-  const itemsGuid = state.posts.map((item) => item.guid);
+  const itemsLink = state.posts.map((item) => item.link);
   const feedItems = items
-    .filter(({ guid }) => !_.includes(itemsGuid, guid))
+    .filter(({ link }) => !_.includes(itemsLink, link))
     .map((item, index) => {
       const feedItem = { ...item };
       feedItem.id = index + itemsLength;
