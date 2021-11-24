@@ -89,7 +89,7 @@ const populatePosts = (container, posts, listItem, watchedPosts) => {
     const item = listItem.cloneNode(true);
     const link = item.querySelector('a');
     const button = item.querySelector('button');
-    const linkClass = (watchedPosts.includes(post.id))
+    const linkClass = (watchedPosts.has(post.id))
       ? ['fw-normal', 'link-secondary']
       : ['fw-bold'];
 

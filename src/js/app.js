@@ -32,7 +32,7 @@ const DEFAULT_STATE = {
   feeds: [],
   posts: [],
   uiState: {
-    watchedPosts: [],
+    watchedPosts: new Set(),
     modal: {
       postId: null,
       visible: false,

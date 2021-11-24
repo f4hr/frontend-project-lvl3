@@ -1,15 +1,11 @@
 // @ts-check
 
-import _ from 'lodash';
 import validate from './validator';
 import { getFeedsUrl } from './utils';
 import watch from './watcher';
 
-const addPostToWatched = (id, watchedState) => {
-  const state = watchedState;
-  const { watchedPosts } = state.uiState;
-
-  if (!_.includes(watchedPosts, id)) state.uiState.watchedPosts = [...watchedPosts, id];
+const addPostToWatched = (id, state) => {
+  state.uiState.watchedPosts.add(id);
 };
 
 const initEvents = (elements, watchedState) => {
