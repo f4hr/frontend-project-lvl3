@@ -54,35 +54,35 @@ const addFeed = (data, url, watchedState) => {
 const getFeed = (url) => axios.get(getProxiedUrl(url))
   .then((response) => ({ url, response }));
 
-const startWatcher = (state) => {
+const startWatcher = (state, i18n) => {
   setTimeout(() => {
     const { feeds } = state;
 
     Promise.all(feeds.map(({ url }) => getFeed(url)))
       .then((responses) => {
         responses.forEach(({ url, response }) => {
-          const feed = parse(response.data.contents);
+          const feed = parse(response.data.contents, i18n);
 
           addFeed(feed, url, state);
         });
       })
-      .catch((error) => {
-        errorHandler(error.message, state);
+      .catch((err) => {
+        errorHandler(err.message, state);
       })
       .finally(() => {
-        startWatcher(state);
+        startWatcher(state, i18n);
       });
   }, UPDATE_DELAY);
 };
 
-const watchFeed = (url, watchedState) => {
+const watchFeed = (url, watchedState, i18n) => {
   const state = watchedState;
 
   state.form.processState = 'sending';
 
   getFeed(url)
     .then(({ response }) => {
-      const feed = parse(response.data.contents);
+      const feed = parse(response.data.contents, i18n);
 
       state.form.processState = 'finished';
 
@@ -90,18 +90,18 @@ const watchFeed = (url, watchedState) => {
 
       if (state.watcher.state === 'idle') {
         state.watcher.state = 'active';
-        startWatcher(state);
+        startWatcher(state, i18n);
       }
     })
-    .catch((e) => {
-      if (e.isAxiosError) {
+    .catch((err) => {
+      if (err.isAxiosError) {
         errorHandler('errors.networkError', state);
 
         setTimeout(() => {
-          watchFeed(url, watchedState);
+          watchFeed(url, watchedState, i18n);
         }, UPDATE_DELAY);
       } else {
-        errorHandler(e.message, state);
+        errorHandler(err.message, state);
       }
     });
 };

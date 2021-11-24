@@ -8,7 +8,7 @@ const addPostToWatched = (id, state) => {
   state.uiState.watchedPosts.add(id);
 };
 
-export default (elements, watchedState) => {
+export default (elements, watchedState, i18n) => {
   const state = watchedState;
   const {
     input,
@@ -30,11 +30,11 @@ export default (elements, watchedState) => {
         state.form.valid = true;
         state.form.errors = {};
         // Add RSS feed to watcher
-        watch(state.form.fields.url, state);
+        watch(state.form.fields.url, state, i18n);
       })
-      .catch((error) => {
+      .catch((err) => {
         state.form.valid = false;
-        state.form.errors = { url: { message: error.message } };
+        state.form.errors = { url: { message: err.message } };
       });
   });
   // Post events

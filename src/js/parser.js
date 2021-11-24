@@ -1,12 +1,14 @@
 // @ts-check
 
+import { getText } from './utils';
+
 const parser = new DOMParser();
 
-export default (data) => {
+export default (data, i18n) => {
   const doc = parser.parseFromString(data, 'application/xml');
   const errorNode = doc.querySelector('parsererror');
 
-  if (errorNode) throw new Error('rssForm.errors.invalidRss');
+  if (errorNode) throw new Error(getText('rssForm.errors.invalidRss', i18n));
 
   const title = doc.querySelector('channel > title').textContent;
   const description = doc.querySelector('channel > description').textContent;

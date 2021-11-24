@@ -112,6 +112,6 @@ export default () => {
     // Init state watcher
     const watchedState = initWatchedState(state, elements, i18nextInstance);
     // Init event handlers
-    initEvents(elements, watchedState);
+    initEvents(elements, watchedState, i18nextInstance);
   });
 };
