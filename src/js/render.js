@@ -96,6 +96,7 @@ const populatePosts = (container, posts, listItem, watchedPosts) => {
     link.classList.add(...linkClass);
     link.textContent = post.title;
     link.href = post.link;
+    link.dataset.id = post.id;
     button.dataset.id = post.id;
 
     container.append(item);

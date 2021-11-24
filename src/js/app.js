@@ -6,7 +6,7 @@ import i18next from 'i18next';
 import onChange from 'on-change';
 import { setLocale } from 'yup';
 import resources from '../../locales';
-import { initEvents, initPostsEvents } from './events';
+import initEvents from './events';
 import {
   renderFeeds,
   renderPosts,
@@ -68,7 +68,6 @@ const initWatchedState = (state, elements, i18n) => onChange(state, (path, value
       break;
     case 'posts':
       renderPosts(value, elements.postsContainer, state.uiState.watchedPosts, i18n);
-      initPostsEvents(elements.postsContainer, state);
       break;
     case 'form.processState':
       processStateHandler(value, elements, i18n);

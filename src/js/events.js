@@ -8,11 +8,12 @@ const addPostToWatched = (id, state) => {
   state.uiState.watchedPosts.add(id);
 };
 
-const initEvents = (elements, watchedState) => {
+export default (elements, watchedState) => {
   const state = watchedState;
   const {
     input,
     form,
+    postsContainer,
     modal,
   } = elements;
 
@@ -36,6 +37,14 @@ const initEvents = (elements, watchedState) => {
         state.form.errors = { url: { message: error.message } };
       });
   });
+  // Post events
+  postsContainer.addEventListener('click', (e) => {
+    if (e.target.hasAttribute('href')) {
+      const id = parseInt(e.target.dataset.id, 10);
+
+      addPostToWatched(id, state);
+    }
+  });
   // Modal events
   modal.addEventListener('show.bs.modal', (e) => {
     const id = parseInt(e.relatedTarget.dataset.id, 10);
@@ -48,20 +57,3 @@ const initEvents = (elements, watchedState) => {
     state.uiState.modal.visible = false;
   });
 };
-
-const initPostsEvents = (container, watchedState) => {
-  const state = watchedState;
-  const posts = Array.from(container.querySelectorAll('li'));
-
-  posts.forEach((post) => {
-    const link = post.querySelector('a');
-    const button = post.querySelector('button');
-    const id = parseInt(button.dataset.id, 10);
-
-    link.addEventListener('click', () => {
-      addPostToWatched(id, state);
-    });
-  });
-};
-
-export { initEvents, initPostsEvents };
